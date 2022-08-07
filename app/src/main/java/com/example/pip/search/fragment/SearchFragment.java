@@ -17,7 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.pip.Adapters.SearchAdapter;
+import com.example.pip.search.adapter.SearchAdapter;
 import com.example.pip.Models.UserModel;
 import com.example.pip.R;
 import com.example.pip.databinding.FragmentSearchBinding;

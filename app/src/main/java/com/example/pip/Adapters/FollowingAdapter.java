@@ -18,7 +18,7 @@ import com.bumptech.glide.Glide;
 import com.example.pip.R;
 import com.example.pip.Models.UserModel;
 import com.example.pip.screens.StartScreen;
-import com.example.pip.screens.VisitOtherUserProfileScreen;
+import com.example.pip.search.visit_another_profile.VisitOtherUserProfileScreen;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

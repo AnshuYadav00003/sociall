@@ -251,6 +251,7 @@ public class CommentScreen extends AppCompatActivity {
                             assert imageModel != null;
                             String getPostImage = imageModel.pipImageData;
                             if (getPostImage != null) {
+//                                Toast.makeText(CommentScreen.this, getPostImage, Toast.LENGTH_SHORT).show();
                                 binding.setPostImage.setVisibility(View.VISIBLE);
                                 Glide.with(CommentScreen.this).load(Uri.parse(getPostImage))
                                         .apply(RequestOptions.placeholderOf(R.drawable.ic_baseline_image_24))

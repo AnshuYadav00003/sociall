@@ -1,9 +1,11 @@
-package com.example.pip.Adapters;
+package com.example.pip.search.visit_another_profile.adaptor;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
+import android.content.res.Configuration;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -32,12 +35,10 @@ public class AnotherUserPostAdaptor extends RecyclerView.Adapter<AnotherUserPost
     ArrayList<UserModel> store_pip_data;
     Context context;
     boolean like_dislike = false;
-    public final DatabaseReference userPipDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserPost").child("UserPipData");
-
-
-    public final DatabaseReference userDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserInfo");
+    private final DatabaseReference userPipDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserPost").child("UserPipData");
+    private final DatabaseReference userDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserInfo");
     private String uid;
-    MediaPlayer mp;
+
 
     public AnotherUserPostAdaptor(Context context, ArrayList<UserModel> store_user_Model_pip, String uid) {
         this.context = context;
@@ -118,6 +119,23 @@ public class AnotherUserPostAdaptor extends RecyclerView.Adapter<AnotherUserPost
             context.startActivity(shareIntent);
         });
 
+        int modeFlag = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (modeFlag == Configuration.UI_MODE_NIGHT_YES) {
+            //comment
+            final Drawable comment = ContextCompat.getDrawable(context , R.drawable.comment);
+            assert comment != null;
+            comment.setColorFilter(ContextCompat.getColor(context , R.color.white) , PorterDuff.Mode.SRC_ATOP);
+            holder.comment.setImageDrawable(comment);
+
+            // share
+            final Drawable share = ContextCompat.getDrawable(context , R.drawable.share);
+            assert share != null;
+            share.setColorFilter(ContextCompat.getColor(context , R.color.white) , PorterDuff.Mode.SRC_ATOP);
+            holder.share.setImageDrawable(share);
+
+            //heart
+            holder.heart.setImageResource(R.drawable.white_heart);
+        }
 
     }
 
@@ -136,9 +154,8 @@ public class AnotherUserPostAdaptor extends RecyclerView.Adapter<AnotherUserPost
         });
     }
 
-
-    private void pip_like_data_store(UserModel userModel, ImageView hert) {
-        hert.setOnClickListener(v -> {
+    private void pip_like_data_store(UserModel userModel, ImageView heart) {
+        heart.setOnClickListener(v -> {
             like_dislike = true;
             userPipDataRef.child(uid).child(userModel.pip_id).child("Likes").addValueEventListener(new ValueEventListener() {
                 @Override
@@ -146,14 +163,10 @@ public class AnotherUserPostAdaptor extends RecyclerView.Adapter<AnotherUserPost
                     if (like_dislike) {
                         if (snapshot.hasChild((FirebaseAuth.getInstance().getCurrentUser().getUid()))) {
                             snapshot.getRef().child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
-                            hert.setImageResource(R.drawable.heart);
+                            nightMode(heart);
                             like_dislike = false;
                         } else {
-                            hert.setImageResource(R.drawable.heartred);
-                            mp = MediaPlayer.create(context, R.raw.heart_click_sound);
-                            mp.setOnPreparedListener(mp1 -> {
-                                mp.start();
-                            });
+                            heart.setImageResource(R.drawable.heartred);
                             snapshot.getRef().child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(true);
                             like_dislike = false;
                         }
@@ -182,7 +195,7 @@ public class AnotherUserPostAdaptor extends RecyclerView.Adapter<AnotherUserPost
                     heartCount.setText(Integer.toString((int) snapshot.getChildrenCount()));
 
                 } else {
-                    heart.setImageResource(R.drawable.heart);
+                    nightMode(heart);
                     heartCount.setText(Integer.toString((int) snapshot.getChildrenCount()));
                 }
 
@@ -196,7 +209,6 @@ public class AnotherUserPostAdaptor extends RecyclerView.Adapter<AnotherUserPost
 
 
     }
-
 
     @Override
     public int getItemCount() {
@@ -221,4 +233,14 @@ public class AnotherUserPostAdaptor extends RecyclerView.Adapter<AnotherUserPost
             setPipImageData = itemView.findViewById(R.id.setPipImageData);
         }
     }
+
+    void nightMode(ImageView heart2) {
+        int modeFlag = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (modeFlag == Configuration.UI_MODE_NIGHT_YES) {
+            heart2.setImageResource(R.drawable.white_heart);
+        } else {
+            heart2.setImageResource(R.drawable.heart);
+        }
+    }
+
 }

@@ -275,6 +275,8 @@ public class MyProfileVisitScreen extends AppCompatActivity {
 //        profileUi.setColorFilter(ContextCompat.getColor(this, R.color.dimNight), PorterDuff.Mode.SRC_ATOP);
     }
 
+
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();

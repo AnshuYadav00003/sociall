@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+
+
+
+<androidx.constraintlayout.widget.ConstraintLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="5dp"
     android:layout_marginTop="5dp"
     android:layout_marginRight="5dp"
-    android:layout_marginBottom="5dp"
-    android:background="@drawable/search_user_detailed_contains"
-    android:elevation="10dp">
+    android:layout_marginBottom="5dp">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView10"
@@ -18,6 +20,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         app:cardCornerRadius="100dp"
+        app:cardElevation="@null"
+        app:cardMaxElevation="@null"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -36,12 +40,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="24dp"
-        android:textColor="@color/black"
+        android:singleLine="true"
+        android:textAlignment="textStart"
         android:textSize="15sp"
         android:textStyle="bold"
+        android:theme="@style/TextView"
         app:layout_constraintStart_toEndOf="@+id/cardView10"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="100dp" />
+        app:layout_constraintWidth_max="wrap" />
 
     <TextView
         android:id="@+id/PipPostDate"
@@ -51,7 +57,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:paddingRight="10dp"
-        android:textColor="@color/black"
+        android:theme="@style/TextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/cardView10"
         app:layout_constraintTop_toBottomOf="@+id/UserNameInPip" />
@@ -84,7 +90,6 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
             android:layout_marginEnd="70dp"
             android:orientation="horizontal">
 
@@ -103,8 +108,8 @@
                 android:layout_height="20dp"
                 android:layout_weight="1"
                 android:text="@string/_01"
-                android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:theme="@style/TextView" />
         </LinearLayout>
 
         <LinearLayout
@@ -128,8 +133,8 @@
                 android:layout_height="20dp"
                 android:layout_weight="1"
                 android:text="@string/_02"
-                android:textColor="@color/black"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:theme="@style/TextView" />
         </LinearLayout>
 
         <LinearLayout
@@ -155,8 +160,18 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:textColor="#000000"
         android:textSize="12sp"
+        android:theme="@style/TextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="381dp"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>

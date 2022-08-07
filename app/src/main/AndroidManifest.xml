@@ -38,7 +38,7 @@
             android:name=".user.settings.SettingsScreen"
             android:exported="false" />
         <activity
-            android:name=".screens.VisitOtherUserProfileScreen"
+            android:name=".search.visit_another_profile.VisitOtherUserProfileScreen"
             android:exported="false" />
         <activity
             android:name=".user.profile.MyProfileVisitScreen"

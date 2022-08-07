@@ -1,25 +1,31 @@
-package com.example.pip.screens;
+package com.example.pip.search.visit_another_profile;
+
+import android.annotation.SuppressLint;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.annotation.SuppressLint;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.pip.Adapters.AnotherUserPostAdaptor;
-import com.example.pip.R;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
+import com.example.pip.search.visit_another_profile.adaptor.AnotherUserPostAdaptor;
 import com.example.pip.Models.UserModel;
+import com.example.pip.R;
+import com.example.pip.databinding.ActivityVisitAnotherProfileBinding;
+import com.example.pip.user.profile.MyProfileVisitScreen;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -29,53 +35,41 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class VisitOtherUserProfileScreen extends AppCompatActivity {
 
-    private ImageView setUserImageInAnotherProfile, webImage, dobImage, locationImage;
-    private TextView putUserNameInAnotherProfile, putUserBioInAnotherProfile,
-            putUserLocationInAnotherProfile, putUserWebsiteInAnotherProfile, putUserDOBInAnotherProfile,
-            fingCount, fwerCount;
-    private final DatabaseReference userDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserInfo");
-    private final DatabaseReference userPipDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserPost").child("UserPipData");
-    private RecyclerView setAnotherUserPipData;
-    private ArrayList<UserModel> Store_pip_dataOfAnotherProfile = new ArrayList<>();
-    private Button DoFollow_Unfollow;
+    private final static DatabaseReference userDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserInfo");
+    private final static DatabaseReference userPipDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserPost").child("UserPipData");
+    private final ArrayList<UserModel> Store_pip_dataOfAnotherProfile = new ArrayList<>();
     private String takeUserId, u_id;
-    AnotherUserPostAdaptor anotherUserPostAdaptor;
+    private AnotherUserPostAdaptor anotherUserPostAdaptor;
     private Boolean checkFollowOrNot = false, notifyData = true;
+
+    private ActivityVisitAnotherProfileBinding binding;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_visit_another_profile);
-        getSupportActionBar().hide();
+        binding = ActivityVisitAnotherProfileBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        Window window = this.getWindow();
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.gray_light));
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
-        //        ---------id declaration ----------------
-        putUserBioInAnotherProfile = findViewById(R.id.setUserBioInAnotherProfile);
-        putUserDOBInAnotherProfile = findViewById(R.id.setUserDOBInAnotherProfile);
-        putUserLocationInAnotherProfile = findViewById(R.id.setUserLocationInAnotherProfile);
-        putUserWebsiteInAnotherProfile = findViewById(R.id.setUserWebsiteInAnotherProfile);
-        putUserNameInAnotherProfile = findViewById(R.id.setUserNameInAnotherProfile);
-        setUserImageInAnotherProfile = findViewById(R.id.setUserImageInAnotherProfile);
-        setAnotherUserPipData = findViewById(R.id.setAnotherUserPipData);
-        DoFollow_Unfollow = findViewById(R.id.DoFollowOrUnfollow);
-        fingCount = findViewById(R.id.fingCount);
-        fwerCount = findViewById(R.id.fwerCount);
-        webImage = findViewById(R.id.webImage);
-        locationImage = findViewById(R.id.locationImage);
-        dobImage = findViewById(R.id.dobImage);
-
+        int modeFlag = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (modeFlag == Configuration.UI_MODE_NIGHT_YES) {
+            switchNightMode();
+        }
 
         Bundle b = getIntent().getExtras();
         u_id = b.getString("Uid");
 
-
         userCanDoFollowOrUnfollow();
+
+        binding.closeOtherProfileScreen.setOnClickListener(v -> {
+            onBackPressed();
+        });
     }
 
     @Override
@@ -94,7 +88,7 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
                         userDataRef.child(takeUserId).child("Following").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                fingCount.setText(String.valueOf(snapshot.getChildrenCount()));
+                                binding.fingCount.setText(String.valueOf(snapshot.getChildrenCount()));
                             }
 
                             @Override
@@ -106,7 +100,7 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
                         userDataRef.child(takeUserId).child("Follower").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                fwerCount.setText(String.valueOf(snapshot.getChildrenCount()));
+                                binding.fwerCount.setText(String.valueOf(snapshot.getChildrenCount()));
                             }
 
                             @Override
@@ -149,10 +143,10 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
                 if (snapshot.exists()) {
                     UserModel userModel = snapshot.getValue(UserModel.class);
                     assert userModel != null;
-                    putUserBioInAnotherProfile.setText(userModel.Bio);
-                    putUserDOBInAnotherProfile.setText(userModel.dateOfBirth);
-                    putUserWebsiteInAnotherProfile.setText(userModel.Website);
-                    putUserLocationInAnotherProfile.setText(userModel.Location);
+                    binding.setUserBioInAnotherProfile.setText(userModel.Bio);
+                    binding.setUserDOBInAnotherProfile.setText(userModel.dateOfBirth);
+                    binding.setUserWebsiteInAnotherProfile.setText(userModel.Website);
+                    binding.setUserLocationInAnotherProfile.setText(userModel.Location);
                 }
             }
 
@@ -161,65 +155,13 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
             }
         });
 
-        if (putUserLocationInAnotherProfile.getText().toString() != null) {
-            locationImage.setVisibility(View.VISIBLE);
-            putUserLocationInAnotherProfile.setVisibility(View.VISIBLE);
-            if (putUserWebsiteInAnotherProfile.getText().toString() != null) {
-                webImage.setVisibility(View.VISIBLE);
-                putUserWebsiteInAnotherProfile.setVisibility(View.VISIBLE);
-                if (putUserDOBInAnotherProfile.getText().toString() != null) {
-                    dobImage.setVisibility(View.VISIBLE);
-                    putUserDOBInAnotherProfile.setVisibility(View.VISIBLE);
-                }
-            } else if (putUserDOBInAnotherProfile.getText().toString() != null) {
-                dobImage.setVisibility(View.VISIBLE);
-                putUserDOBInAnotherProfile.setVisibility(View.VISIBLE);
-            }
-        }
-
-
-        if (putUserWebsiteInAnotherProfile.getText().toString() != null) {
-            webImage.setVisibility(View.VISIBLE);
-            putUserWebsiteInAnotherProfile.setVisibility(View.VISIBLE);
-            if (putUserLocationInAnotherProfile.getText().toString() != null) {
-                locationImage.setVisibility(View.VISIBLE);
-                putUserLocationInAnotherProfile.setVisibility(View.VISIBLE);
-                if (putUserDOBInAnotherProfile.getText().toString() != null) {
-                    dobImage.setVisibility(View.VISIBLE);
-                    putUserDOBInAnotherProfile.setVisibility(View.VISIBLE);
-                }
-            }
-            else if (putUserDOBInAnotherProfile.getText().toString() != null) {
-                dobImage.setVisibility(View.VISIBLE);
-                putUserDOBInAnotherProfile.setVisibility(View.VISIBLE);
-            }
-        }
-
-        if (putUserDOBInAnotherProfile.getText().toString() != null) {
-            dobImage.setVisibility(View.VISIBLE);
-            putUserDOBInAnotherProfile.setVisibility(View.VISIBLE);
-            if (putUserLocationInAnotherProfile.getText().toString() != null) {
-                locationImage.setVisibility(View.VISIBLE);
-                putUserLocationInAnotherProfile.setVisibility(View.VISIBLE);
-                if (putUserWebsiteInAnotherProfile.getText().toString() != null) {
-                    webImage.setVisibility(View.VISIBLE);
-                    putUserWebsiteInAnotherProfile.setVisibility(View.VISIBLE);
-                }
-            } else if (putUserWebsiteInAnotherProfile.getText().toString() != null) {
-                webImage.setVisibility(View.VISIBLE);
-                putUserWebsiteInAnotherProfile.setVisibility(View.VISIBLE);
-            }
-        }
-
-
-
-
 
         userDataRef.child(takeUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 UserModel userModel = snapshot.getValue(UserModel.class);
-                putUserNameInAnotherProfile.setText(userModel.usName);
+                assert userModel != null;
+                binding.setUserNameInAnotherProfile.setText(userModel.usName);
 
             }
 
@@ -233,9 +175,36 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     UserModel userModel = snapshot.getValue(UserModel.class);
-                    Glide.with(VisitOtherUserProfileScreen.this).load(Uri.parse(userModel.User_Profile_Image_Uri)).into(setUserImageInAnotherProfile);
-                } else {
-                    setUserImageInAnotherProfile.setImageResource(R.drawable.usermodel);
+                    assert userModel != null;
+                    Glide.with(VisitOtherUserProfileScreen.this).asBitmap().load(Uri.parse(userModel.User_Profile_Image_Uri))
+                            .apply(RequestOptions.placeholderOf(R.drawable.usermodel))
+                            .listener(new RequestListener<Bitmap>() {
+                                @Override
+                                public boolean onLoadFailed(
+                                        @Nullable GlideException e,
+                                        Object model,
+                                        Target<Bitmap> target,
+                                        boolean isFirstResource
+                                ) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(
+                                        Bitmap resource,
+                                        Object model,
+                                        Target<Bitmap> target,
+                                        DataSource dataSource,
+                                        boolean isFirstResource
+                                ) {
+                                    Palette.from(resource).generate(p -> {
+                                        assert p != null;
+                                        binding.setDynamicColorOfAnotherProfile.setCardBackgroundColor(p.getVibrantColor(292929));
+                                    });
+                                    return false;
+                                }
+                            })
+                            .into(binding.setUserImageInAnotherProfile);
                 }
 
             }
@@ -247,18 +216,18 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
         });
     }
 
-
     private void setUser_data_in_recyclerView(String takeUserUid) {
-        setAnotherUserPipData.setHasFixedSize(true);
+        binding.setAnotherUserPipData.setHasFixedSize(true);
 
         anotherUserPostAdaptor = new AnotherUserPostAdaptor(this, Store_pip_dataOfAnotherProfile, takeUserUid);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
-        setAnotherUserPipData.setLayoutManager(layoutManager);
-        setAnotherUserPipData.setAdapter(anotherUserPostAdaptor);
+        binding.setAnotherUserPipData.setLayoutManager(layoutManager);
+        binding.setAnotherUserPipData.setAdapter(anotherUserPostAdaptor);
 
         userPipDataRef.child(takeUserUid).addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Store_pip_dataOfAnotherProfile.clear();
@@ -266,7 +235,6 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         UserModel userModel = ds.getValue(UserModel.class);
                         Store_pip_dataOfAnotherProfile.add(userModel);
-
                     }
                     if (notifyData) {
                         anotherUserPostAdaptor.notifyDataSetChanged();
@@ -283,22 +251,22 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
     }
 
     private void userCanDoFollowOrUnfollow() {
-        DoFollow_Unfollow.setOnClickListener(v -> {
+        binding.DoFollowOrUnfollow.setOnClickListener(v -> {
             checkFollowOrNot = true;
-            userDataRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Following").addValueEventListener(new ValueEventListener() {
+            userDataRef.child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).child("Following").addValueEventListener(new ValueEventListener() {
                 @SuppressLint("SetTextI18n")
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (checkFollowOrNot) {
                         if (snapshot.hasChild(takeUserId)) {
                             snapshot.getRef().child(takeUserId).setValue(null);
-                            DoFollow_Unfollow.setText("Follow");
+                            binding.DoFollowOrUnfollow.setText("Follow");
                             userDataRef.child(takeUserId).child("Follower").child(FirebaseAuth.getInstance()
                                     .getCurrentUser().getUid()).setValue(null);
                             checkFollowOrNot = false;
                         } else {
                             snapshot.getRef().child(takeUserId).setValue(true);
-                            DoFollow_Unfollow.setText("Following");
+                            binding.DoFollowOrUnfollow.setText("Following");
                             userDataRef.child(takeUserId).child("Follower").child(FirebaseAuth.getInstance()
                                     .getCurrentUser().getUid()).setValue(true);
                             checkFollowOrNot = false;
@@ -315,14 +283,14 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
     }
 
     private void checkStatus(String takeUserId) {
-        userDataRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("Following").addValueEventListener(new ValueEventListener() {
+        userDataRef.child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).child("Following").addValueEventListener(new ValueEventListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.hasChild(takeUserId)) {
-                    DoFollow_Unfollow.setText("Following");
+                    binding.DoFollowOrUnfollow.setText("Following");
                 } else {
-                    DoFollow_Unfollow.setText("Follow");
+                    binding.DoFollowOrUnfollow.setText("Follow");
                 }
             }
 
@@ -331,5 +299,27 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
 
             }
         });
+    }
+
+
+    private void switchNightMode() {
+
+        final Drawable profileUi = ContextCompat.getDrawable(this, R.drawable.pip_show_ui_for_profile);
+        assert profileUi != null;
+        profileUi.setColorFilter(ContextCompat.getColor(this, R.color.dimNight), PorterDuff.Mode.SRC_ATOP);
+        binding.constraintLayout2.setBackground(profileUi);
+
+        final  Drawable close = ContextCompat.getDrawable(this , R.drawable.arrow_back);
+        assert  close != null;
+        close.setColorFilter(ContextCompat.getColor(this , R.color.white) , PorterDuff.Mode.SRC_ATOP);
+        binding.closeOtherProfileScreen.setImageDrawable(close);
+
+        binding.setAnotherUserPipData.setBackgroundResource(R.color.dimNight);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finish();
     }
 }
