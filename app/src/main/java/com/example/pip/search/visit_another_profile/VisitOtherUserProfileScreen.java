@@ -21,11 +21,10 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import com.example.pip.search.visit_another_profile.adaptor.AnotherUserPostAdaptor;
 import com.example.pip.Models.UserModel;
 import com.example.pip.R;
 import com.example.pip.databinding.ActivityVisitAnotherProfileBinding;
-import com.example.pip.user.profile.MyProfileVisitScreen;
+import com.example.pip.search.visit_another_profile.adaptor.AnotherUserPostAdaptor;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -67,9 +66,7 @@ public class VisitOtherUserProfileScreen extends AppCompatActivity {
 
         userCanDoFollowOrUnfollow();
 
-        binding.closeOtherProfileScreen.setOnClickListener(v -> {
-            onBackPressed();
-        });
+        binding.closeOtherProfileScreen.setOnClickListener(v -> onBackPressed());
     }
 
     @Override

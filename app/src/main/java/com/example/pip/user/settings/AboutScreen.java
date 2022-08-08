@@ -1,5 +1,6 @@
 package com.example.pip.user.settings;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -9,16 +10,22 @@ import android.text.Html;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.pip.BuildConfig;
 import com.example.pip.R;
+import com.example.pip.databinding.AboutappBinding;
 
 import java.util.Objects;
 
 public class AboutScreen extends AppCompatActivity {
 
+    private AboutappBinding binding;
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.aboutapp);
+        binding = AboutappBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         Objects.requireNonNull(getSupportActionBar()).setElevation(5);
 
@@ -35,6 +42,8 @@ public class AboutScreen extends AppCompatActivity {
                 setUiAsLightMode();
                 break;
         }
+
+        binding.versionApp.setText( "App version \n" + BuildConfig.VERSION_NAME);
 
     }
 

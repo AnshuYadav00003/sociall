@@ -1,4 +1,4 @@
-package com.example.pip.Home.Screens;
+package com.example.pip.Home.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.example.pip.Adapters.HomePostAdapter;
+import com.example.pip.Home.adapter.HomePostAdapter;
 import com.example.pip.Models.UserModel;
 import com.example.pip.databinding.FragmentHomeBinding;
 import com.example.pip.Home.post.PostScreen;
@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
 
 public class HomeScreen extends Fragment {
@@ -87,6 +88,14 @@ public class HomeScreen extends Fragment {
             Intent userTwitPageOpen = new Intent(getContext(), PostScreen.class);
             startActivity(userTwitPageOpen);
         });
+
+
+        binding.swipeRefreshLayout.setOnRefreshListener(() -> {
+            storePipData.clear();
+            followerId.clear();
+            getAllFollowerId();
+            binding.swipeRefreshLayout.setRefreshing(false);
+        });
     }
 
 
@@ -132,10 +141,10 @@ public class HomeScreen extends Fragment {
                             UserModel userModel1 = ds1.getValue(UserModel.class);
                             storePipData.add(userModel1);
                         }
-                        if (notifyData) {
+//                        if (notifyData) {
                             homePageAdapter.notifyDataSetChanged();
-                            notifyData = false;
-                        }
+//                            notifyData = false;
+//                        }
                         binding.progressbar.setVisibility(View.GONE);
                         binding.errorText.setVisibility(View.GONE);
                     }
@@ -147,6 +156,7 @@ public class HomeScreen extends Fragment {
                 }
             });
         }
+
     }
 }
 

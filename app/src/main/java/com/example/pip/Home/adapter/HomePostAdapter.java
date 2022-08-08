@@ -1,7 +1,9 @@
-package com.example.pip.Adapters;
+package com.example.pip.Home.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +20,7 @@ import com.bumptech.glide.Glide;
 import com.example.pip.R;
 import com.example.pip.Models.UserModel;
 import com.example.pip.Models.PostDataImageModel;
-import com.example.pip.screens.PostViewScreen;
+import com.example.pip.Home.Screens.PostViewScreen;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,8 +31,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class HomePostAdapter extends RecyclerView.Adapter<HomePostAdapter.MyViewAdapter> {
-    ArrayList<UserModel> pipDate;
-    Context context;
+    private final ArrayList<UserModel> pipDate;
+    private final Context context;
     public final DatabaseReference userPipDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserPost").child("UserPipData");
     public final DatabaseReference userDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserInfo");
     private String uid;
@@ -67,6 +69,7 @@ public class HomePostAdapter extends RecyclerView.Adapter<HomePostAdapter.MyView
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
                             UserModel userModel1 = snapshot.getValue(UserModel.class);
+                            assert userModel1 != null;
                             Glide.with(context).load(Uri.parse(userModel1.User_Profile_Image_Uri)).into(holder.setUserImage);
                         } else {
                             holder.setUserImage.setImageResource(R.drawable.usermodel);
@@ -100,7 +103,16 @@ public class HomePostAdapter extends RecyclerView.Adapter<HomePostAdapter.MyView
             }
         });
         recyclerClickView(holder.setClick, userModel);
+
+
+        int modeFlag = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (modeFlag == Configuration.UI_MODE_NIGHT_YES) {
+            holder.userPipName.setTextColor(Color.WHITE);
+            holder.setDate.setTextColor(Color.WHITE);
+            holder.pipDateShow.setTextColor(Color.WHITE);
+        }
     }
+
 
     public void recyclerClickView(ConstraintLayout setClick, UserModel userModel) {
         setClick.setOnClickListener(v -> {
@@ -119,6 +131,7 @@ public class HomePostAdapter extends RecyclerView.Adapter<HomePostAdapter.MyView
                 if (snapshot.exists()) {
                     setPipImageData.setVisibility(View.VISIBLE);
                     PostDataImageModel imageModel = snapshot.getValue(PostDataImageModel.class);
+                    assert imageModel != null;
                     Glide.with(context).load(Uri.parse(imageModel.pipImageData)).into(setPipImageData);
                 } else {
                     setPipImageData.setImageResource(R.drawable.ic_baseline_home_24);

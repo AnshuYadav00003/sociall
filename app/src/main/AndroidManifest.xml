@@ -23,7 +23,7 @@
             android:exported="true"
             android:parentActivityName=".user.profile.MyProfileVisitScreen" />
         <activity
-            android:name=".screens.PostViewScreen"
+            android:name=".Home.Screens.PostViewScreen"
             android:exported="true"
             android:parentActivityName=".screens.HomeScreen" />
         <activity

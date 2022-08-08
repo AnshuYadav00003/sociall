@@ -1,16 +1,15 @@
-package com.example.pip.screens;
+package com.example.pip.Home.Screens;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,14 +17,15 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.pip.Models.CommentModel;
-import com.example.pip.R;
-import com.example.pip.Models.UserModel;
-import com.example.pip.Models.PostDataImageModel;
 import com.example.pip.Adapters.CommentAdapter;
+import com.example.pip.Models.CommentModel;
+import com.example.pip.Models.PostDataImageModel;
+import com.example.pip.Models.UserModel;
+import com.example.pip.R;
+import com.example.pip.databinding.PipViewBinding;
+import com.example.pip.screens.CommentScreen;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -35,51 +35,41 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class PostViewScreen extends AppCompatActivity {
-    private String pip_id, imageUri, username, uid;
+    private String pip_id;
+    private String uid;
     private final DatabaseReference userPipDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserPost").child("UserPipData");
     private final DatabaseReference userDataRef = FirebaseDatabase.getInstance().getReference("user").child("UserInfo");
-    private ImageView setUserImage, heart3, comment3, shearing , setUserPipPhoto;
-    private TextView setUsername, pipData, heartCount3, pipDateTime, commentCount;
     private boolean like_dislike = false;
-    CommentAdapter showcommentadapter;
-    private ArrayList<CommentModel> storeUserReply = new ArrayList<>();
-    private RecyclerView settingUserPipData;
-    MediaPlayer mp;
+    private CommentAdapter showcommentadapter;
+    private final ArrayList<CommentModel> storeUserReply = new ArrayList<>();
 
+
+    private PipViewBinding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.pip_view);
+        binding = PipViewBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        ActionBar bar;
-        bar = getSupportActionBar();
+        ActionBar bar = getSupportActionBar();
         ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#ffffff"));
+        assert bar != null;
         bar.setBackgroundDrawable(colorDrawable);
         bar.setDisplayHomeAsUpEnabled(true);
         final Drawable upArrow =  ContextCompat.getDrawable(this, R.drawable.arrow_back);
+        assert upArrow != null;
         upArrow.setColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.SRC_ATOP);
         bar.setHomeAsUpIndicator(upArrow);
-        bar.setElevation(5);
+        bar.setElevation(0);
 
 
         Bundle bundle = getIntent().getExtras();
         pip_id = String.valueOf(bundle.get("pip_id"));
-        username = String.valueOf(bundle.get("name"));
+        String username = String.valueOf(bundle.get("name"));
 
-
-        setUserImage = findViewById(R.id.setUserPhoto);
-        setUsername = findViewById(R.id.username);
-        pipData = findViewById(R.id.pipData);
-        heart3 = findViewById(R.id.heart3);
-        heartCount3 = findViewById(R.id.heartCount3);
-        pipDateTime = findViewById(R.id.pipDateTime);
-        comment3 = findViewById(R.id.comment3);
-        shearing = findViewById(R.id.shearing);
-        settingUserPipData = findViewById(R.id.settingUserPipData);
-        commentCount = findViewById(R.id.commentCount3);
-        setUserPipPhoto = findViewById(R.id.setUserPipPhoto);
 
         userDataRef.orderByChild("usName").equalTo(username).addChildEventListener(new ChildEventListener() {
             @Override
@@ -116,32 +106,58 @@ public class PostViewScreen extends AppCompatActivity {
         });
 
 
-        settingUserPipData.setHasFixedSize(true);
+        binding.settingUserPipData.setHasFixedSize(true);
         showcommentadapter = new CommentAdapter(this, storeUserReply);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
-        settingUserPipData.setLayoutManager(layoutManager);
-        settingUserPipData.setAdapter(showcommentadapter);
+        binding.settingUserPipData.setLayoutManager(layoutManager);
+        binding.settingUserPipData.setAdapter(showcommentadapter);
 
 
-        comment3.setOnClickListener(view -> {
+        binding.comment3.setOnClickListener(view -> {
             Intent moveCommentPage = new Intent(this, CommentScreen.class);
-            moveCommentPage.putExtra("userName", setUsername.getText().toString());
-            moveCommentPage.putExtra("pipData", pipData.getText().toString());
+            moveCommentPage.putExtra("userName", binding.username.getText().toString());
+            moveCommentPage.putExtra("pipData", binding.pipData.getText().toString());
             moveCommentPage.putExtra("pip_id", pip_id);
             startActivity(moveCommentPage);
 
         });
 
-        shearing.setOnClickListener(view -> {
+        binding.shearing.setOnClickListener(view -> {
             Intent share = new Intent();
             share.setAction(Intent.ACTION_SEND);
-            share.putExtra(Intent.EXTRA_TEXT, pipData.getText().toString());
+            share.putExtra(Intent.EXTRA_TEXT, binding.pipData.getText().toString());
             share.setType("text/plain");
             Intent shareIntent = Intent.createChooser(share, "Pip Post");
             startActivity(shareIntent);
         });
+
+        int modeFlag = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (modeFlag == Configuration.UI_MODE_NIGHT_YES) {
+            ColorDrawable colorDrawable2 = new ColorDrawable(Color.parseColor("#000000"));
+            bar.setBackgroundDrawable(colorDrawable2);
+
+            final Drawable upArrow2 =  ContextCompat.getDrawable(this, R.drawable.arrow_back);
+            assert upArrow2 != null;
+            upArrow2.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
+            bar.setHomeAsUpIndicator(upArrow2);
+
+            bar.setTitle("");
+
+            binding.heart3.setImageResource(R.drawable.white_heart);
+
+            final Drawable comment =  ContextCompat.getDrawable(this, R.drawable.comment);
+            assert comment != null;
+            comment.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
+            binding.comment3.setImageDrawable(comment);
+
+            final Drawable share =  ContextCompat.getDrawable(this, R.drawable.share);
+            assert share != null;
+            share.setColorFilter(ContextCompat.getColor(this, R.color.white), PorterDuff.Mode.SRC_ATOP);
+            binding.shearing.setImageDrawable(share);
+
+        }
 
 
     }
@@ -152,19 +168,21 @@ public class PostViewScreen extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 UserModel userModel = snapshot.getValue(UserModel.class);
-                setUsername.setText(userModel.pipuserName);
-                pipData.setText(userModel.pipPostData);
-                pipDateTime.setText(userModel.date);
+                assert userModel != null;
+                binding.username.setText(userModel.pipuserName);
+                binding.pipData.setText(userModel.pipPostData);
+                binding.pipDateTime.setText(userModel.date);
                 snapshot.getRef().child("ImageUriFromDatabase").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
                             PostDataImageModel imageModel = snapshot.getValue(PostDataImageModel.class);
-                            setUserImage.setVisibility(View.VISIBLE);
-                            Glide.with(PostViewScreen.this).load(Uri.parse(imageModel.pipImageData)).into(setUserPipPhoto);
+                            binding.setUserPhoto.setVisibility(View.VISIBLE);
+                            assert imageModel != null;
+                            Glide.with(PostViewScreen.this).load(Uri.parse(imageModel.pipImageData)).into(binding.setUserPipPhoto);
                         } else {
-                            setUserPipPhoto.setImageResource(R.drawable.ic_baseline_home_24);
-                            setUserPipPhoto.setVisibility(View.GONE);
+                            binding.setUserPipPhoto.setImageResource(R.drawable.ic_baseline_home_24);
+                            binding.setUserPipPhoto.setVisibility(View.GONE);
                         }
                     }
 
@@ -190,9 +208,10 @@ public class PostViewScreen extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     UserModel userModel = snapshot.getValue(UserModel.class);
-                    Glide.with(PostViewScreen.this).load(userModel.User_Profile_Image_Uri).into(setUserImage);
+                    assert userModel != null;
+                    Glide.with(PostViewScreen.this).load(userModel.User_Profile_Image_Uri).into(binding.setUserPhoto);
                 } else {
-                    setUserImage.setImageResource(R.drawable.usermodel);
+                    binding.setUserPhoto.setImageResource(R.drawable.usermodel);
                 }
             }
 
@@ -205,22 +224,18 @@ public class PostViewScreen extends AppCompatActivity {
     }
 
     private void pip_like_data_store(String uid) {
-        heart3.setOnClickListener(v -> {
+        binding.heart3.setOnClickListener(v -> {
             like_dislike = true;
             userPipDataRef.child(uid).child(pip_id).child("Likes").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (like_dislike) {
-                        if (snapshot.hasChild((FirebaseAuth.getInstance().getCurrentUser().getUid()))) {
-                            heart3.setImageResource(R.drawable.heart);
+                        if (snapshot.hasChild((Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()))) {
+                            binding.heart3.setImageResource(R.drawable.heart);
                             snapshot.getRef().child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(null);
                             like_dislike = false;
                         } else {
-                            mp = MediaPlayer.create(PostViewScreen.this, R.raw.heart_click_sound);
-                            mp.setOnPreparedListener(mp1 -> {
-                                mp.start();
-                            });
-                            heart3.setImageResource(R.drawable.heartred);
+                            binding.heart3.setImageResource(R.drawable.heartred);
                             snapshot.getRef().child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(true);
                             like_dislike = false;
                         }
@@ -240,16 +255,17 @@ public class PostViewScreen extends AppCompatActivity {
     private void likeStatus(String uid) {
 
         userPipDataRef.child(uid).child(pip_id).child("Likes").addValueEventListener(new ValueEventListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                if ((snapshot.hasChild(FirebaseAuth.getInstance().getUid()))) {
-                    heart3.setImageResource(R.drawable.heartred);
-                    heartCount3.setText(Integer.toString((int) snapshot.getChildrenCount()));
+                if ((snapshot.hasChild(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())))) {
+                    binding.heart3.setImageResource(R.drawable.heartred);
+                    binding.heartCount3.setText(Integer.toString((int) snapshot.getChildrenCount()));
 
                 } else {
-                    heart3.setImageResource(R.drawable.heart);
-                    heartCount3.setText(Integer.toString((int) snapshot.getChildrenCount()));
+                    nightMode();
+                    binding.heartCount3.setText(Integer.toString((int) snapshot.getChildrenCount()));
                 }
 
             }
@@ -265,6 +281,7 @@ public class PostViewScreen extends AppCompatActivity {
 
     private void takeComment(String uid) {
         userPipDataRef.child(uid).child(pip_id).child("Comments").addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -290,7 +307,7 @@ public class PostViewScreen extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
 
-                    commentCount.setText(String.valueOf((int) snapshot.getChildrenCount()));
+                    binding.commentCount3.setText(String.valueOf((int) snapshot.getChildrenCount()));
                 }
             }
 
@@ -301,4 +318,12 @@ public class PostViewScreen extends AppCompatActivity {
         });
     }
 
+    void nightMode() {
+        int modeFlag = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (modeFlag == Configuration.UI_MODE_NIGHT_YES) {
+            binding.heart3.setImageResource(R.drawable.white_heart);
+        } else {
+            binding.heart3.setImageResource(R.drawable.heart);
+        }
+    }
 }
